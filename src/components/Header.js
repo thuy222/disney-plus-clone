@@ -52,6 +52,9 @@ const Nav = styled.nav`
 const Logo = styled.img`
   width: 80px;
   cursor: pointer;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 const NavMenu = styled.div`
   display: flex;
@@ -89,6 +92,11 @@ const NavMenu = styled.div`
         transition: all 0.2s ease-in-out;
       }
     }
+  }
+  @media (max-width: 600px) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
   }
 `;
 const UserImg = styled.img`
