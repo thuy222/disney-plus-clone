@@ -1,44 +1,65 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
+import db from "../firebase";
+import { useSelector } from "react-redux";
 
 function Detail() {
+  const { id } = useParams();
+  const [movie, setMovie] = useState();
+
+  const movies = useSelector((state) => state.movie.movies);
+
+  useEffect(() => {
+    const currentMovie = movies.filter((stateMovie) => stateMovie.id === id);
+
+    setMovie(currentMovie[0]);
+  }, []);
+
+  // useEffect(() => {
+  //   db.collection("movie")
+  //     .doc(id)
+  //     .get()
+  //     .then((doc) => {
+  //       if (doc.exists) {
+  //         //save the movie data
+  //         setMovie(doc.data());
+  //       } else {
+  //         //redirect to home page
+  //       }
+  //     });
+  // }, []);
+
   return (
     <Container>
-      <Background>
-        <img
-          src="https://cdn.vox-cdn.com/thumbor/wJ71E7nJ_4Wj0btm5seEnHNJ4Xk=/0x0:4096x2304/1200x800/filters:focal(1973x1175:2627x1829)/cdn.vox-cdn.com/uploads/chorus_image/image/60190709/BO_RGB_s120_22a_cs_pub.pub16.318.0.jpg"
-          alt=""
-        />
-      </Background>
-      <ImageTitle>
-        <img
-          src="https://i.ytimg.com/vi/7rspQR7rhf0/maxresdefault.jpg"
-          alt=""
-        />
-      </ImageTitle>
-      <Controls>
-        <PlayButton>
-          <img src="/images/play-icon-black.png" alt="" />
-          <span>Play</span>
-        </PlayButton>
-        <TrailerButton>
-          <img src="/images/play-icon-white.png" alt="" />
-          <span>Trailer</span>
-        </TrailerButton>
-        <AddButton>
-          <span>+</span>
-        </AddButton>
-        <GroupWatchButton>
-          <img src="/images/group-icon.png" alt="" />
-        </GroupWatchButton>
-      </Controls>
-      <SubTitle>Việt Nam - Nhật Bản: 19h thứ Năm 11/11</SubTitle>
-      <Description>
-        Theo Transfermarkt, chiều cao trung bình của 28 cầu thủ Nhật Bản tập
-        trung lần này là 1,79 m, hơn 4 cm so với thông số trung bình của Việt
-        Nam. Trong bốn trận qua, trận nào Việt Nam cũng thủng lưới từ một pha
-        bóng bổng rót vào cấm địa
-      </Description>
+      {movie && (
+        <>
+          <Background>
+            <img src={movie.backgroundImg} />
+          </Background>
+          <ImageTitle>
+            <img src={movie.titleImg} />
+          </ImageTitle>
+          <Controls>
+            <PlayButton>
+              <img src="/images/play-icon-black.png" alt="" />
+              <span>Play</span>
+            </PlayButton>
+            <TrailerButton>
+              <img src="/images/play-icon-white.png" alt="" />
+              <span>Trailer</span>
+            </TrailerButton>
+            <AddButton>
+              <span>+</span>
+            </AddButton>
+            <GroupWatchButton>
+              <img src="/images/group-icon.png" alt="" />
+            </GroupWatchButton>
+          </Controls>
+          <SubTitle>{movie.subTitle}</SubTitle>
+          <Description>{movie.description}</Description>
+        </>
+      )}
     </Container>
   );
 }
@@ -73,6 +94,7 @@ const ImageTitle = styled.div`
   min-width: 200px;
   width: 35vw;
   margin-top: 40px;
+  margin-bottom: 40px;
   img {
     width: 100%;
     height: 100%;
