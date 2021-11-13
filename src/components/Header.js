@@ -1,38 +1,97 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import {
+  selectUserName,
+  selectUserPhoto,
+  setUserLogin,
+  setSignOut,
+} from "../features/user/userSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { auth, provider } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userName = useSelector(selectUserName);
+  const userPhoto = useSelector(selectUserPhoto);
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        dispatch(
+          setUserLogin({
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+          })
+        );
+        navigate("/");
+      }
+    });
+  }, []);
+
+  const signIn = () => {
+    auth.signInWithPopup(provider).then((result) => {
+      let user = result.user;
+      dispatch(
+        setUserLogin({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        })
+      );
+      navigate("/");
+    });
+  };
+
+  const signOut = () => {
+    auth.signOut().then(() => {
+      dispatch(setSignOut());
+      navigate("/login");
+    });
+  };
+
   return (
     <Nav>
       <Logo src="/images/logo.svg" />
-      <NavMenu>
-        <a>
-          <img src="/images/home-icon.svg" alt="home" />
-          <span>Home</span>
-        </a>
-        <a>
-          <img src="/images/search-icon.svg" alt="search" />
-          <span>Search</span>
-        </a>
-        <a>
-          <img src="/images/watchlist-icon.svg" alt="watchlist" />
-          <span>WatchList</span>
-        </a>
+      {!userName ? (
+        <Login onClick={signIn}>Login</Login>
+      ) : (
+        <>
+          <NavMenu>
+            <a>
+              <img src="/images/home-icon.svg" alt="home" />
+              <span>Home</span>
+            </a>
+            <a>
+              <img src="/images/search-icon.svg" alt="search" />
+              <span>Search</span>
+            </a>
+            <a>
+              <img src="/images/watchlist-icon.svg" alt="watchlist" />
+              <span>WatchList</span>
+            </a>
 
-        <a>
-          <img src="/images/original-icon.svg" alt="original" />
-          <span>Original</span>
-        </a>
-        <a>
-          <img src="/images/movie-icon.svg" alt="movie" />
-          <span>Movie</span>
-        </a>
-        <a>
-          <img src="/images/series-icon.svg" alt="series" />
-          <span>Series</span>
-        </a>
-      </NavMenu>
-      <UserImg src="https://bazaarvietnam.vn/wp-content/uploads/2021/10/lisa-blackpink-mac-cosmetics-collection-12-2021-4.jpg" />
+            <a>
+              <img src="/images/original-icon.svg" alt="original" />
+              <span>Original</span>
+            </a>
+            <a>
+              <img src="/images/movie-icon.svg" alt="movie" />
+              <span>Movie</span>
+            </a>
+            <a>
+              <img src="/images/series-icon.svg" alt="series" />
+              <span>Series</span>
+            </a>
+          </NavMenu>
+          <UserImg
+            onClick={signOut}
+            src="https://bazaarvietnam.vn/wp-content/uploads/2021/10/lisa-blackpink-mac-cosmetics-collection-12-2021-4.jpg"
+          />
+        </>
+      )}
     </Nav>
   );
 }
@@ -45,7 +104,7 @@ const Nav = styled.nav`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 calc(3.5vw + 5px);
   overflow-x: hidden;
 `;
 
@@ -104,4 +163,21 @@ const UserImg = styled.img`
   width: 40px;
   border-radius: 50%;
   cursor: pointer;
+`;
+
+const Login = styled.button`
+  border: 1px solid #f9f9f9;
+  padding: 8px 16px;
+  border-radius: 4px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  &:hover {
+    background-color: #f9f9f9;
+    color: black;
+    border-color: transparent;
+  }
 `;
